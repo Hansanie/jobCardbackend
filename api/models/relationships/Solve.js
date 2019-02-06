@@ -8,5 +8,5 @@ const SolveSchema = new mongoose.Schema({
     status: { type: String, default: "incomplete" },
     mark: { type: Date, required: false }
 });
-
+ 
 mongoose.model('solves', SolveSchema);

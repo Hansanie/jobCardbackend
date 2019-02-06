@@ -49,17 +49,22 @@ router.post('/', async (req, res) => {
 //get job details group by month
 router.get('/technician/:technicianId', function (req, res) {
 
-    console.log(req.params.technicianId);
+    //console.log(req.params.technicianId);
 
     // Job.find({"technicianId":req.params.machineId}) 
 
 
     Job.aggregate([
         {
-            $group: {
-                _id: { $substr: ['$date', 0, 7] },
-                numberofbookings: { $sum: 1 }
-            }
+            // $group: {
+            //     _id: { $substr: ['$date', 0, 7] },
+            //     numberofbookings: { $sum: 1 }
+            // }
+                $group: {
+                       _id: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
+                       numberofbookings: {$sum: 1}
+                }
+
         },
         // { $match : {"assignEngineerId" : mongoose.Types.ObjectId(req.params.technicianId) }}
     ])
@@ -75,22 +80,29 @@ router.get('/technician/:technicianId', function (req, res) {
                     }
                 })
 
+                var dayJobs =[];
                 var tempArr = [];
 
                 job.forEach(element => {
+                    console.log(element);
+                    //element.date = parseInt(element._id).split('-')[2];
                     element.year = parseInt(element._id.split('-')[0]);
                     element.month = parseInt(element._id.split('-')[1]);
 
-                    var t = tempArr.find(el => el.year == element.year)
+                    var t = tempArr.find(el => el.year == element.year 
+                        
+                    )
 
                     if (!t) {
                         tempArr.push({
                             year: element.year,
-                            data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                            data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                           // DayData:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
                         })
                     }
 
                     tempArr.find(el => el.year == element.year).data[element.month - 1] = tempArr.find(el => el.year == element.year).data[element.month - 1] + element.numberofbookings;
+                    //tempArr.find(el => el.month == element.month).data[element.date - 1] = tempArr.find(el => el.month == element.month).data[element.date - 1] + element.numberofbookings;
                 });
 
                 res.json({
